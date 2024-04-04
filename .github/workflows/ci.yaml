@@ -1,0 +1,25 @@
+name: 'CI'
+
+on:
+- 'pull_request'
+- 'push'
+
+jobs:
+  test:
+    runs-on: 'ubuntu-22.04'
+
+    steps:
+    - uses: 'actions/checkout@v4'
+    - run: |
+        # CI VMs have rustup and stable pre-installed, but they're not necessarily the latest.
+        # So expect them to exist but update them.
+        rustup self update
+        rustup set profile minimal
+        rustup update --no-self-update stable
+
+        rustup component add clippy
+
+        # Saves a few seconds for large crates
+        export CARGO_INCREMENTAL=0
+
+        make test
