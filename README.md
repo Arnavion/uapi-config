@@ -1,5 +1,11 @@
 Rust implementation of [the UAPI Configuration Files Specification.](https://uapi-group.org/specifications/specs/configuration_files_specification/)
 
+[crates.io](https://crates.io/crates/uapi-config)
+
+[Documentation](https://docs.rs/uapi-config/)
+
+[Changelog](https://github.com/Arnavion/uapi-config/blob/main/CHANGELOG.md)
+
 
 # What about [`libeconf`](https://github.com/openSUSE/libeconf) ?
 

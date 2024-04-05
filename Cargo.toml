@@ -6,6 +6,7 @@ authors = ["Arnav Singh <me@arnavion.dev>"]
 edition = "2021"
 categories = ["config"]
 description = "Rust implementation of the UAPI Configuration Files Specification"
+documentation = "https://docs.rs/uapi-config/0.1.0/"
 keywords = ["econf", "libeconf", "systemd", "uapi"]
 readme = "README.md"
 repository = "https://github.com/Arnavion/uapi-config"

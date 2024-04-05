@@ -80,7 +80,7 @@ impl<'a> SearchDirectories<'a> {
 
 	/// Append the directory for local user config overrides, `$XDG_CONFIG_HOME`.
 	///
-	/// If the `dirs` crate feature is enabled, then `dirs::config_dir()` is used for the implementation of `$XDG_CONFIG_HOME`.
+	/// If the `dirs` crate feature is enabled, then `dirs::config_dir()` is used for the implementation of `$XDG_CONFIG_HOME`,
 	/// else a custom implementation is used.
 	#[must_use]
 	pub fn with_user_directory(mut self) -> Self {
@@ -209,6 +209,8 @@ impl std::fmt::Display for InvalidPathError {
 impl std::error::Error for InvalidPathError {}
 
 /// A list of search directories that the config files will be searched under, scoped to a particular project.
+///
+/// Created using [`SearchDirectories::with_project`].
 #[derive(Clone, Debug)]
 pub struct SearchDirectoriesForProject<'a, TProject> {
 	inner: Vec<Cow<'a, Path>>,
@@ -324,6 +326,8 @@ impl<'a, TProject> SearchDirectoriesForProject<'a, TProject> {
 }
 
 /// A list of search directories that the config files will be searched under, scoped to a particular config file name.
+///
+/// Created using [`SearchDirectories::with_file_name`].
 #[derive(Clone, Debug)]
 pub struct SearchDirectoriesForFileName<'a, TFileName> {
 	inner: Vec<Cow<'a, Path>>,
@@ -440,6 +444,8 @@ impl<'a, TFileName> SearchDirectoriesForFileName<'a, TFileName> {
 }
 
 /// A list of search directories that the config files will be searched under, scoped to a particular project and config file name.
+///
+/// Created using [`SearchDirectoriesForProject::with_file_name`] or [`SearchDirectoriesForFileName::with_project`].
 #[derive(Clone, Debug)]
 pub struct SearchDirectoriesForProjectAndFileName<'a, TProject, TFileName> {
 	inner: Vec<Cow<'a, Path>>,
