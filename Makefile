@@ -20,3 +20,5 @@ test:
 	cargo clippy --workspace --tests --examples
 
 	cargo doc --no-deps --all-features
+
+	cargo machete
