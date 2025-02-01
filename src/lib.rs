@@ -453,7 +453,7 @@ pub struct SearchDirectoriesForProjectAndFileName<'a, TProject, TFileName> {
 	file_name: TFileName,
 }
 
-impl<'a, TProject, TFileName> SearchDirectoriesForProjectAndFileName<'a, TProject, TFileName> {
+impl<TProject, TFileName> SearchDirectoriesForProjectAndFileName<'_, TProject, TFileName> {
 	/// Returns an [`Iterator`] of `(`[`PathBuf`]`, `[`File`]`)`s for all the files found in the specified search directories.
 	/// The project name is appended to each search directory, then those directories are searched for files named `file_name`.
 	///
