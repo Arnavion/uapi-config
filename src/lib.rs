@@ -45,9 +45,7 @@ pub struct SearchDirectories<'a> {
 impl<'a> SearchDirectories<'a> {
 	/// Start with an empty list of search directories.
 	pub const fn empty() -> Self {
-		Self {
-			inner: vec![],
-		}
+		Self { inner: vec![] }
 	}
 
 	/// Start with the default search directory roots for a system application on a classic Linux distribution.
@@ -98,11 +96,11 @@ impl<'a> SearchDirectories<'a> {
 					let mut value: PathBuf = value.into();
 					value.push(".config");
 					user_config_dir = Some(value);
-				},
+				}
 
 				_ => {
 					user_config_dir = None;
-				},
+				}
 			},
 		}
 
@@ -126,13 +124,16 @@ impl<'a> SearchDirectories<'a> {
 			let mut new_dir = root.to_owned();
 			for component in dir.components() {
 				match component {
-					Component::Prefix(_) => unreachable!("this variant is Windows-only"),
-					Component::RootDir |
-					Component::CurDir => (),
-					Component::ParentDir => unreachable!("all paths in self.inner went through validate_path or were hard-coded to be valid"),
+					Component::Prefix(_) => {
+						unreachable!("this variant is Windows-only")
+					}
+					Component::RootDir | Component::CurDir => (),
+					Component::ParentDir => unreachable!(
+						"all paths in self.inner went through validate_path or were hard-coded to be valid"
+					),
 					Component::Normal(component) => {
 						new_dir.push(component);
-					},
+					}
 				}
 			}
 			*dir = new_dir.into();
@@ -161,8 +162,7 @@ impl<'a> SearchDirectories<'a> {
 	pub fn with_project<TProject>(
 		self,
 		project: TProject,
-	) -> SearchDirectoriesForProject<'a, TProject>
-	{
+	) -> SearchDirectoriesForProject<'a, TProject> {
 		SearchDirectoriesForProject {
 			inner: self.inner,
 			project,
@@ -173,8 +173,7 @@ impl<'a> SearchDirectories<'a> {
 	pub fn with_file_name<TFileName>(
 		self,
 		file_name: TFileName,
-	) -> SearchDirectoriesForFileName<'a, TFileName>
-	{
+	) -> SearchDirectoriesForFileName<'a, TFileName> {
 		SearchDirectoriesForFileName {
 			inner: self.inner,
 			file_name,
@@ -189,7 +188,10 @@ impl Default for SearchDirectories<'_> {
 }
 
 impl<'a> FromIterator<Cow<'a, Path>> for SearchDirectories<'a> {
-	fn from_iter<T>(iter: T) -> Self where T: IntoIterator<Item = Cow<'a, Path>> {
+	fn from_iter<T>(iter: T) -> Self
+	where
+		T: IntoIterator<Item = Cow<'a, Path>>,
+	{
 		Self {
 			inner: FromIterator::from_iter(iter),
 		}
@@ -222,8 +224,7 @@ impl<'a, TProject> SearchDirectoriesForProject<'a, TProject> {
 	pub fn with_file_name<TFileName>(
 		self,
 		file_name: TFileName,
-	) -> SearchDirectoriesForProjectAndFileName<'a, TProject, TFileName>
-	{
+	) -> SearchDirectoriesForProjectAndFileName<'a, TProject, TFileName> {
 		SearchDirectoriesForProjectAndFileName {
 			inner: self.inner,
 			project: self.project,
@@ -277,20 +278,41 @@ impl<'a, TProject> SearchDirectoriesForProject<'a, TProject> {
 	/// This will locate all dropins `/usr/etc/foobar.d/*.conf`, `/run/foobar.d/*.conf`, `/etc/foobar.d/*.conf`, `$XDG_CONFIG_HOME/foobar.d/*.conf`
 	/// in lexicographical order.
 	///
-	#[cfg_attr(feature = "dirs", doc = r#"## Get all config files for the application `foobar`"#)]
+	#[cfg_attr(
+		feature = "dirs",
+		doc = r#"## Get all config files for the application `foobar`"#
+	)]
 	#[cfg_attr(feature = "dirs", doc = r#""#)]
-	#[cfg_attr(feature = "dirs", doc = r#"... with custom paths for the OS vendor configs, sysadmin overrides and local user overrides."#)]
+	#[cfg_attr(
+		feature = "dirs",
+		doc = r#"... with custom paths for the OS vendor configs, sysadmin overrides and local user overrides."#
+	)]
 	#[cfg_attr(feature = "dirs", doc = r#""#)]
 	#[cfg_attr(feature = "dirs", doc = r#"```rust"#)]
 	#[cfg_attr(feature = "dirs", doc = r#"// OS and sysadmin configs"#)]
-	#[cfg_attr(feature = "dirs", doc = r#"let mut search_directories: uapi_config::SearchDirectories = ["#)]
-	#[cfg_attr(feature = "dirs", doc = r#"    std::path::Path::new("/usr/share").into(),"#)]
+	#[cfg_attr(
+		feature = "dirs",
+		doc = r#"let mut search_directories: uapi_config::SearchDirectories = ["#
+	)]
+	#[cfg_attr(
+		feature = "dirs",
+		doc = r#"    std::path::Path::new("/usr/share").into(),"#
+	)]
 	#[cfg_attr(feature = "dirs", doc = r#"    std::path::Path::new("/etc").into(),"#)]
 	#[cfg_attr(feature = "dirs", doc = r#"].into_iter().collect();"#)]
 	#[cfg_attr(feature = "dirs", doc = r#""#)]
-	#[cfg_attr(feature = "dirs", doc = r#"// Local user configs under `${XDG_CONFIG_HOME:-$HOME/.config}`"#)]
-	#[cfg_attr(feature = "dirs", doc = r#"if let Some(user_config_dir) = dirs::config_dir() {"#)]
-	#[cfg_attr(feature = "dirs", doc = r#"    search_directories.push(user_config_dir.into());"#)]
+	#[cfg_attr(
+		feature = "dirs",
+		doc = r#"// Local user configs under `${XDG_CONFIG_HOME:-$HOME/.config}`"#
+	)]
+	#[cfg_attr(
+		feature = "dirs",
+		doc = r#"if let Some(user_config_dir) = dirs::config_dir() {"#
+	)]
+	#[cfg_attr(
+		feature = "dirs",
+		doc = r#"    search_directories.push(user_config_dir.into());"#
+	)]
 	#[cfg_attr(feature = "dirs", doc = r#"}"#)]
 	#[cfg_attr(feature = "dirs", doc = r#""#)]
 	#[cfg_attr(feature = "dirs", doc = r#"let files ="#)]
@@ -300,24 +322,27 @@ impl<'a, TProject> SearchDirectoriesForProject<'a, TProject> {
 	#[cfg_attr(feature = "dirs", doc = r#"    .unwrap();"#)]
 	#[cfg_attr(feature = "dirs", doc = r#"```"#)]
 	#[cfg_attr(feature = "dirs", doc = r#""#)]
-	#[cfg_attr(feature = "dirs", doc = r#"This will locate `/usr/share/foobar.d/*.conf`, `/etc/foobar.d/*.conf`, `$XDG_CONFIG_HOME/foobar.d/*.conf` in that order and return the last one."#)]
-	pub fn find_files<TDropinSuffix>(
-		self,
-		dropin_suffix: TDropinSuffix,
-	) -> io::Result<Files>
+	#[cfg_attr(
+		feature = "dirs",
+		doc = r#"This will locate `/usr/share/foobar.d/*.conf`, `/etc/foobar.d/*.conf`, `$XDG_CONFIG_HOME/foobar.d/*.conf` in that order and return the last one."#
+	)]
+	pub fn find_files<TDropinSuffix>(self, dropin_suffix: TDropinSuffix) -> io::Result<Files>
 	where
 		TProject: AsRef<OsStr>,
 		TDropinSuffix: AsRef<OsStr>,
 	{
 		let project = self.project.as_ref().as_bytes();
 
-		let dropins = find_dropins(dropin_suffix.as_ref(), self.inner.into_iter().map(|path| {
-			let mut path_bytes = path.into_owned().into_os_string().into_vec();
-			path_bytes.push(b'/');
-			path_bytes.extend_from_slice(project);
-			path_bytes.extend_from_slice(b".d");
-			PathBuf::from(OsString::from_vec(path_bytes))
-		}))?;
+		let dropins = find_dropins(
+			dropin_suffix.as_ref(),
+			self.inner.into_iter().map(|path| {
+				let mut path_bytes = path.into_owned().into_os_string().into_vec();
+				path_bytes.push(b'/');
+				path_bytes.extend_from_slice(project);
+				path_bytes.extend_from_slice(b".d");
+				PathBuf::from(OsString::from_vec(path_bytes))
+			}),
+		)?;
 
 		Ok(Files {
 			inner: None.into_iter().chain(dropins),
@@ -341,8 +366,7 @@ impl<'a, TFileName> SearchDirectoriesForFileName<'a, TFileName> {
 	pub fn with_project<TProject>(
 		self,
 		project: TProject,
-	) -> SearchDirectoriesForProjectAndFileName<'a, TProject, TFileName>
-	{
+	) -> SearchDirectoriesForProjectAndFileName<'a, TProject, TFileName> {
 		SearchDirectoriesForProjectAndFileName {
 			inner: self.inner,
 			project,
@@ -423,19 +447,21 @@ impl<'a, TFileName> SearchDirectoriesForFileName<'a, TFileName> {
 
 		let main_file = find_main_file(file_name, self.inner.iter().map(Deref::deref))?;
 
-		let dropins =
-			if let Some(dropin_suffix) = dropin_suffix {
-				find_dropins(dropin_suffix.as_ref(), self.inner.into_iter().map(|path| {
-					let mut path_bytes = path.into_owned().into_os_string().into_vec();
+		let dropins = if let Some(dropin_suffix) = dropin_suffix {
+			find_dropins(
+				dropin_suffix.as_ref(),
+				self.inner.into_iter().map(|path| {
+					let mut path_bytes =
+						path.into_owned().into_os_string().into_vec();
 					path_bytes.push(b'/');
 					path_bytes.extend_from_slice(file_name.as_bytes());
 					path_bytes.extend_from_slice(b".d");
 					PathBuf::from(OsString::from_vec(path_bytes))
-				}))?
-			}
-			else {
-				Default::default()
-			};
+				}),
+			)?
+		} else {
+			Default::default()
+		};
 
 		Ok(Files {
 			inner: main_file.into_iter().chain(dropins),
@@ -482,23 +508,28 @@ impl<TProject, TFileName> SearchDirectoriesForProjectAndFileName<'_, TProject, T
 
 		let file_name = self.file_name.as_ref();
 
-		let main_file = find_main_file(file_name, self.inner.iter().map(|path| path.join(project)))?;
+		let main_file = find_main_file(
+			file_name,
+			self.inner.iter().map(|path| path.join(project)),
+		)?;
 
-		let dropins =
-			if let Some(dropin_suffix) = dropin_suffix {
-				find_dropins(dropin_suffix.as_ref(), self.inner.into_iter().map(|path| {
-					let mut path_bytes = path.into_owned().into_os_string().into_vec();
+		let dropins = if let Some(dropin_suffix) = dropin_suffix {
+			find_dropins(
+				dropin_suffix.as_ref(),
+				self.inner.into_iter().map(|path| {
+					let mut path_bytes =
+						path.into_owned().into_os_string().into_vec();
 					path_bytes.push(b'/');
 					path_bytes.extend_from_slice(project.as_bytes());
 					path_bytes.push(b'/');
 					path_bytes.extend_from_slice(file_name.as_bytes());
 					path_bytes.extend_from_slice(b".d");
 					PathBuf::from(OsString::from_vec(path_bytes))
-				}))?
-			}
-			else {
-				Default::default()
-			};
+				}),
+			)?
+		} else {
+			Default::default()
+		};
 
 		Ok(Files {
 			inner: main_file.into_iter().chain(dropins),
@@ -600,11 +631,10 @@ pub struct Files {
 	inner: FilesInner,
 }
 
-type FilesInner =
-	std::iter::Chain<
-		std::option::IntoIter<(PathBuf, File)>,
-		std::collections::btree_map::IntoValues<Vec<u8>, (PathBuf, File)>,
-	>;
+type FilesInner = std::iter::Chain<
+	std::option::IntoIter<(PathBuf, File)>,
+	std::collections::btree_map::IntoValues<Vec<u8>, (PathBuf, File)>,
+>;
 
 impl Iterator for Files {
 	type Item = (PathBuf, File);
@@ -621,7 +651,11 @@ impl DoubleEndedIterator for Files {
 }
 
 const _STATIC_ASSERT_FILES_INNER_IS_FUSED_ITERATOR: () = {
-	const fn is_fused_iterator<T>() where T: std::iter::FusedIterator {}
+	const fn is_fused_iterator<T>()
+	where
+		T: std::iter::FusedIterator,
+	{
+	}
 	is_fused_iterator::<FilesInner>();
 };
 impl std::iter::FusedIterator for Files {}
@@ -639,21 +673,29 @@ mod tests {
 				for include_etc in [false, true] {
 					let mut search_directories = vec![];
 					if include_usr_etc {
-						search_directories.push(concat!(env!("CARGO_MANIFEST_DIR"), "/test-files/search_directory_precedence/usr/etc"));
+						search_directories.push(concat!(
+							env!("CARGO_MANIFEST_DIR"),
+							"/test-files/search_directory_precedence/usr/etc"
+						));
 					}
 					if include_run {
-						search_directories.push(concat!(env!("CARGO_MANIFEST_DIR"), "/test-files/search_directory_precedence/run"));
+						search_directories.push(concat!(
+							env!("CARGO_MANIFEST_DIR"),
+							"/test-files/search_directory_precedence/run"
+						));
 					}
 					if include_etc {
-						search_directories.push(concat!(env!("CARGO_MANIFEST_DIR"), "/test-files/search_directory_precedence/etc"));
+						search_directories.push(concat!(
+							env!("CARGO_MANIFEST_DIR"),
+							"/test-files/search_directory_precedence/etc"
+						));
 					}
 					let search_directories: SearchDirectories<'_> =
 						search_directories
-						.into_iter()
-						.map(|path| Path::new(path).into())
-						.collect();
-					let files: Vec<_> =
-						search_directories
+							.into_iter()
+							.map(|path| Path::new(path).into())
+							.collect();
+					let files: Vec<_> = search_directories
 						.with_project("foo")
 						.with_file_name("a.conf")
 						.find_files(Some(".conf"))
@@ -661,24 +703,57 @@ mod tests {
 						.map(|(path, _)| path)
 						.collect();
 					if include_etc {
-						assert_eq!(files, [
-							concat!(env!("CARGO_MANIFEST_DIR"), "/test-files/search_directory_precedence/etc/foo/a.conf"),
-							concat!(env!("CARGO_MANIFEST_DIR"), "/test-files/search_directory_precedence/etc/foo/a.conf.d/b.conf"),
-						].into_iter().map(Into::into).collect::<Vec<PathBuf>>());
-					}
-					else if include_run {
-						assert_eq!(files, [
-							concat!(env!("CARGO_MANIFEST_DIR"), "/test-files/search_directory_precedence/run/foo/a.conf"),
-							concat!(env!("CARGO_MANIFEST_DIR"), "/test-files/search_directory_precedence/run/foo/a.conf.d/b.conf"),
-						].into_iter().map(Into::into).collect::<Vec<PathBuf>>());
-					}
-					else if include_usr_etc {
-						assert_eq!(files, [
-							concat!(env!("CARGO_MANIFEST_DIR"), "/test-files/search_directory_precedence/usr/etc/foo/a.conf"),
-							concat!(env!("CARGO_MANIFEST_DIR"), "/test-files/search_directory_precedence/usr/etc/foo/a.conf.d/b.conf"),
-						].into_iter().map(Into::into).collect::<Vec<PathBuf>>());
-					}
-					else {
+						assert_eq!(
+							files,
+							[
+								concat!(
+									env!("CARGO_MANIFEST_DIR"),
+									"/test-files/search_directory_precedence/etc/foo/a.conf"
+								),
+								concat!(
+									env!("CARGO_MANIFEST_DIR"),
+									"/test-files/search_directory_precedence/etc/foo/a.conf.d/b.conf"
+								),
+							]
+							.into_iter()
+							.map(Into::into)
+							.collect::<Vec<PathBuf>>()
+						);
+					} else if include_run {
+						assert_eq!(
+							files,
+							[
+								concat!(
+									env!("CARGO_MANIFEST_DIR"),
+									"/test-files/search_directory_precedence/run/foo/a.conf"
+								),
+								concat!(
+									env!("CARGO_MANIFEST_DIR"),
+									"/test-files/search_directory_precedence/run/foo/a.conf.d/b.conf"
+								),
+							]
+							.into_iter()
+							.map(Into::into)
+							.collect::<Vec<PathBuf>>()
+						);
+					} else if include_usr_etc {
+						assert_eq!(
+							files,
+							[
+								concat!(
+									env!("CARGO_MANIFEST_DIR"),
+									"/test-files/search_directory_precedence/usr/etc/foo/a.conf"
+								),
+								concat!(
+									env!("CARGO_MANIFEST_DIR"),
+									"/test-files/search_directory_precedence/usr/etc/foo/a.conf.d/b.conf"
+								),
+							]
+							.into_iter()
+							.map(Into::into)
+							.collect::<Vec<PathBuf>>()
+						);
+					} else {
 						assert_eq!(files, Vec::<PathBuf>::new());
 					}
 				}
@@ -688,44 +763,99 @@ mod tests {
 
 	#[test]
 	fn only_project() {
-		let files: Vec<_> =
-			SearchDirectories::modern_system()
-			.chroot(Path::new(concat!(env!("CARGO_MANIFEST_DIR"), "/test-files/only_project")))
+		let files: Vec<_> = SearchDirectories::modern_system()
+			.chroot(Path::new(concat!(
+				env!("CARGO_MANIFEST_DIR"),
+				"/test-files/only_project"
+			)))
 			.unwrap()
 			.with_project("foo")
 			.find_files(".conf")
 			.unwrap()
 			.map(|(path, _)| path)
 			.collect();
-		assert_eq!(files, [
-			concat!(env!("CARGO_MANIFEST_DIR"), "/test-files/only_project/etc/foo.d/a.conf"),
-			concat!(env!("CARGO_MANIFEST_DIR"), "/test-files/only_project/usr/etc/foo.d/b.conf"),
-			concat!(env!("CARGO_MANIFEST_DIR"), "/test-files/only_project/run/foo.d/c.conf"),
-			concat!(env!("CARGO_MANIFEST_DIR"), "/test-files/only_project/etc/foo.d/d.conf"),
-			concat!(env!("CARGO_MANIFEST_DIR"), "/test-files/only_project/run/foo.d/e.conf"),
-			concat!(env!("CARGO_MANIFEST_DIR"), "/test-files/only_project/usr/etc/foo.d/f.conf"),
-		].into_iter().map(Into::into).collect::<Vec<PathBuf>>());
+		assert_eq!(
+			files,
+			[
+				concat!(
+					env!("CARGO_MANIFEST_DIR"),
+					"/test-files/only_project/etc/foo.d/a.conf"
+				),
+				concat!(
+					env!("CARGO_MANIFEST_DIR"),
+					"/test-files/only_project/usr/etc/foo.d/b.conf"
+				),
+				concat!(
+					env!("CARGO_MANIFEST_DIR"),
+					"/test-files/only_project/run/foo.d/c.conf"
+				),
+				concat!(
+					env!("CARGO_MANIFEST_DIR"),
+					"/test-files/only_project/etc/foo.d/d.conf"
+				),
+				concat!(
+					env!("CARGO_MANIFEST_DIR"),
+					"/test-files/only_project/run/foo.d/e.conf"
+				),
+				concat!(
+					env!("CARGO_MANIFEST_DIR"),
+					"/test-files/only_project/usr/etc/foo.d/f.conf"
+				),
+			]
+			.into_iter()
+			.map(Into::into)
+			.collect::<Vec<PathBuf>>()
+		);
 	}
 
 	#[test]
 	fn only_file_name() {
-		let files: Vec<_> =
-			SearchDirectories::modern_system()
-			.chroot(Path::new(concat!(env!("CARGO_MANIFEST_DIR"), "/test-files/only_file_name")))
+		let files: Vec<_> = SearchDirectories::modern_system()
+			.chroot(Path::new(concat!(
+				env!("CARGO_MANIFEST_DIR"),
+				"/test-files/only_file_name"
+			)))
 			.unwrap()
 			.with_file_name("foo.service")
 			.find_files(Some(".conf"))
 			.unwrap()
 			.map(|(path, _)| path)
 			.collect();
-		assert_eq!(files, [
-			concat!(env!("CARGO_MANIFEST_DIR"), "/test-files/only_file_name/etc/foo.service"),
-			concat!(env!("CARGO_MANIFEST_DIR"), "/test-files/only_file_name/etc/foo.service.d/a.conf"),
-			concat!(env!("CARGO_MANIFEST_DIR"), "/test-files/only_file_name/usr/etc/foo.service.d/b.conf"),
-			concat!(env!("CARGO_MANIFEST_DIR"), "/test-files/only_file_name/run/foo.service.d/c.conf"),
-			concat!(env!("CARGO_MANIFEST_DIR"), "/test-files/only_file_name/etc/foo.service.d/d.conf"),
-			concat!(env!("CARGO_MANIFEST_DIR"), "/test-files/only_file_name/run/foo.service.d/e.conf"),
-			concat!(env!("CARGO_MANIFEST_DIR"), "/test-files/only_file_name/usr/etc/foo.service.d/f.conf"),
-		].into_iter().map(Into::into).collect::<Vec<PathBuf>>());
+		assert_eq!(
+			files,
+			[
+				concat!(
+					env!("CARGO_MANIFEST_DIR"),
+					"/test-files/only_file_name/etc/foo.service"
+				),
+				concat!(
+					env!("CARGO_MANIFEST_DIR"),
+					"/test-files/only_file_name/etc/foo.service.d/a.conf"
+				),
+				concat!(
+					env!("CARGO_MANIFEST_DIR"),
+					"/test-files/only_file_name/usr/etc/foo.service.d/b.conf"
+				),
+				concat!(
+					env!("CARGO_MANIFEST_DIR"),
+					"/test-files/only_file_name/run/foo.service.d/c.conf"
+				),
+				concat!(
+					env!("CARGO_MANIFEST_DIR"),
+					"/test-files/only_file_name/etc/foo.service.d/d.conf"
+				),
+				concat!(
+					env!("CARGO_MANIFEST_DIR"),
+					"/test-files/only_file_name/run/foo.service.d/e.conf"
+				),
+				concat!(
+					env!("CARGO_MANIFEST_DIR"),
+					"/test-files/only_file_name/usr/etc/foo.service.d/f.conf"
+				),
+			]
+			.into_iter()
+			.map(Into::into)
+			.collect::<Vec<PathBuf>>()
+		);
 	}
 }

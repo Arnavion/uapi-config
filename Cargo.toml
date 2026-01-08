@@ -2,8 +2,9 @@
 name = "uapi-config"
 version = "0.1.0"
 license = "AGPL-3.0-only"
-authors = ["Arnav Singh <me@arnavion.dev>"]
-edition = "2021"
+authors = ["Arnav Singh <me@arnavion.dev>", "Aster Boese <asterboese@mailbox.org>"]
+edition = "2024"
+rust-version = "1.85.1"
 categories = ["config"]
 description = "Rust implementation of the UAPI Configuration Files Specification"
 documentation = "https://docs.rs/uapi-config/0.1.0/"
@@ -23,15 +24,3 @@ dirs = { version = "6", default-features = false, optional = true }
 [features]
 # Enable this feature to use `dirs::config_dir()` in the implementation of `SearchDirectories::modern_user()`
 dirs = ["dep:dirs"]
-
-[lints.rust]
-rust_2018_idioms = "deny"
-warnings = "deny"
-
-[lints.clippy]
-all = { level = "deny", priority = -1 }
-pedantic = { level = "deny", priority = -1 }
-default_trait_access = "allow"
-# Ref: https://github.com/rust-lang/rust-clippy/issues/12270
-lint_groups_priority = "allow"
-must_use_candidate = "allow"

@@ -22,3 +22,7 @@ test:
 	cargo doc --no-deps --all-features
 
 	cargo machete
+
+	cargo deny check
+
+	cargo msrv find --min 1.85.1
