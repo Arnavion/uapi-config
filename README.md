@@ -6,6 +6,7 @@ Rust implementation of [the UAPI Configuration Files Specification.](https://uap
 
 [Changelog](https://github.com/Arnavion/uapi-config/blob/main/CHANGELOG.md)
 
+MSRV: 1.85.1
 
 # What about [`libeconf`](https://github.com/openSUSE/libeconf) ?
 
