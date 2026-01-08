@@ -22,6 +22,4 @@ jobs:
         # Saves a few seconds for large crates
         export CARGO_INCREMENTAL=0
 
-        cargo install --locked cargo-machete
-
         make test
