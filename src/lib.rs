@@ -32,7 +32,10 @@ use std::{
 	fs::{self, File},
 	io,
 	ops::Deref,
-	os::unix::ffi::{OsStrExt as _, OsStringExt as _},
+	os::unix::{
+		ffi::{OsStrExt as _, OsStringExt as _},
+		fs::FileTypeExt as _,
+	},
 	path::{Component, Path, PathBuf},
 };
 
@@ -536,7 +539,10 @@ where
 			Err(err) => return Err(err),
 		};
 
-		if !file.metadata()?.file_type().is_file() {
+		let file_type = file.metadata()?.file_type();
+		// `/dev/null` is a character device.
+		// We could allow FIFOs and block devices here too, but it doesn't seem likely anyone would want to use them.
+		if !file_type.is_file() && !file_type.is_char_device() {
 			continue;
 		}
 
@@ -581,7 +587,10 @@ where
 				Err(err) => return Err(err),
 			};
 
-			if !file.metadata()?.file_type().is_file() {
+			let file_type = file.metadata()?.file_type();
+			// `/dev/null` is a character device.
+			// We could allow FIFOs and block devices here too, but it doesn't seem likely anyone would want to use them.
+			if !file_type.is_file() && !file_type.is_char_device() {
 				continue;
 			}
 
