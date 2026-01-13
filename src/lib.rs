@@ -81,9 +81,9 @@ impl<'a> SearchDirectories<'a> {
 		}
 	}
 
-	/// Append the directory for local user config overrides, `$XDG_CONFIG_HOME`.
+	/// Append the directory for local user config overrides, `${XDG_CONFIG_HOME:-$HOME/.config}`.
 	///
-	/// If the `dirs` crate feature is enabled, then `dirs::config_dir()` is used for the implementation of `$XDG_CONFIG_HOME`,
+	/// If the `dirs` crate feature is enabled, then `dirs::config_dir()` is used for the implementation,
 	/// else a custom implementation is used.
 	#[must_use]
 	pub fn with_user_directory(mut self) -> Self {
@@ -303,7 +303,7 @@ impl<'a, TProject> SearchDirectoriesForProject<'a, TProject> {
 	#[cfg_attr(feature = "dirs", doc = r#"    .unwrap();"#)]
 	#[cfg_attr(feature = "dirs", doc = r#"```"#)]
 	#[cfg_attr(feature = "dirs", doc = r#""#)]
-	#[cfg_attr(feature = "dirs", doc = r#"This will locate `/usr/share/foobar.d/*.conf`, `/etc/foobar.d/*.conf`, `$XDG_CONFIG_HOME/foobar.d/*.conf` in that order and return the last one."#)]
+	#[cfg_attr(feature = "dirs", doc = r#"This will locate all dropins `/usr/share/foobar.d/*.conf`, `/etc/foobar.d/*.conf`, `$XDG_CONFIG_HOME/foobar.d/*.conf` in lexicographical order."#)]
 	pub fn find_files<TDropinSuffix>(
 		self,
 		dropin_suffix: TDropinSuffix,
@@ -384,7 +384,7 @@ impl<'a, TFileName> SearchDirectoriesForFileName<'a, TFileName> {
 	/// ```
 	///
 	/// This will locate `/usr/etc/foobar.conf` `/run/foobar.conf`, `/etc/foobar.conf` in that order and return the last one,
-	/// then all dropins `/usr/etc/foobar.d/*.conf`, `/run/foobar.d/*.conf`, `/etc/foobar.d/*.conf` in lexicographical order.
+	/// then all dropins `/usr/etc/foobar.conf.d/*.conf`, `/run/foobar.conf.d/*.conf`, `/etc/foobar.conf.d/*.conf` in lexicographical order.
 	///
 	/// ## Get the config files for the "foo.service" systemd system unit like systemd would do
 	///
@@ -412,7 +412,7 @@ impl<'a, TFileName> SearchDirectoriesForFileName<'a, TFileName> {
 	///     .unwrap();
 	/// ```
 	///
-	/// This will locate `/run/systemd/generator.late/foobar.service` `/usr/lib/systemd/system/foo.service`, ... in that order and return the last one,
+	/// This will locate `/run/systemd/generator.late/foo.service` `/usr/lib/systemd/system/foo.service`, ... in that order and return the last one,
 	/// then all dropins `/run/systemd/generator.late/foo.service.d/*.conf`, `/usr/lib/systemd/system/foo.service.d/*.conf`, ... in lexicographical order.
 	pub fn find_files<TDropinSuffix>(
 		self,
@@ -472,6 +472,24 @@ impl<TProject, TFileName> SearchDirectoriesForProjectAndFileName<'_, TProject, T
 	///
 	/// Any errors from reading non-existing directories and non-existing files are ignored.
 	/// Apart from that, any I/O errors from walking the directories and from opening the files found within are propagated.
+	///
+	/// # Examples
+	///
+	/// ## Get all config files for the system service `foobar`
+	///
+	/// ... taking into account OS vendor configs, ephemeral overrides and sysadmin overrides.
+	///
+	/// ```rust
+	/// let files =
+	///     uapi_config::SearchDirectories::modern_system()
+	///     .with_project("foobar")
+	///     .with_file_name("foobar.conf")
+	///     .find_files(Some(".conf"))
+	///     .unwrap();
+	/// ```
+	///
+	/// This will locate `/usr/etc/foobar/foobar.conf` `/run/foobar/foobar.conf`, `/etc/foobar/foobar.conf` in that order and return the last one,
+	/// then all dropins `/usr/etc/foobar/foobar.conf.d/*.conf`, `/run/foobar/foobar.conf.d/*.conf`, `/etc/foobar/foobar.conf.d/*.conf` in lexicographical order.
 	pub fn find_files<TDropinSuffix>(
 		self,
 		dropin_suffix: Option<TDropinSuffix>,
